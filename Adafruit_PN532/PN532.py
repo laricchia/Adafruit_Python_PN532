@@ -437,3 +437,22 @@ class PN532(object):
                                       params=params,
                                       response_length=1)
         return response[0] == 0x00
+
+    def ntag2xx_WritePage(self, block_number, data):
+        """Write a block of data to the card.  Block number should be the block
+        to write and data should be a byte array of length 4 with the data to
+        write.  If the data is successfully written then True is returned,
+        otherwise False is returned.
+        """
+        assert data is not None and len(data) == 4, 'Data must be an array of 4 bytes!'
+        # Build parameters for InDataExchange command to do MiFare classic write.
+        params = bytearray(7)
+        params[0] = 0x01  # Max card numbers
+        params[1] = MIFARE_ULTRALIGHT_CMD_WRITE
+        params[2] = block_number & 0xFF
+        params[3:] = data
+        # Send InDataExchange request.
+        response = self.call_function(PN532_COMMAND_INDATAEXCHANGE,
+                                      params=params,
+                                      response_length=1)
+        return response[0] == 0x00
